@@ -16,13 +16,13 @@ function handleMulter(dest: string) {
             cb(null, path.join('uploads', dest))
         },
         filename: (req, file, cb) => {
-            cb(null, crypto.randomBytes(16).toString('hex') + '-' + file.originalname)
+            cb(null, crypto.randomBytes(16).toString('hex') + '-' + path.extname(file.originalname))
         }
     })
 
     const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
         const { mimetype } = file
-        if (mimetype === 'image/jpeg' || mimetype === 'image/png' || mimetype === "image/jpg") {
+        if (mimetype === 'image/jpeg' || mimetype === 'image/png' || mimetype === "image/jpg" || mimetype.slice(0, 5) === "video") {
             cb(null, true)
         } else {
             cb(new Error('Invalid image type'))

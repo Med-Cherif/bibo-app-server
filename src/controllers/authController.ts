@@ -17,7 +17,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         if (existsUser) return next({ message: 'E-mail already in use', statuscode: 409 })
         existsUser = await User.findOne({ username })
         if (existsUser) return next({ message: 'Username already in use', statuscode: 409 })
-        const newUser = new User({ ...data, birthday: new Date(birthday.split('/').reverse().join('/')) })
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ ...data, password: hashedPassword, birthday: new Date(birthday.split('/').reverse().join('/')) })
         const user = await newUser.save()
 
         const accessToken = generateAccessToken(user)

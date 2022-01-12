@@ -2,7 +2,7 @@ import http from 'http';
 import app from "./app";
 import { connectDB } from './config/db';
 import { Server } from "socket.io";
-import { followUser, unfollowUser } from "./socket/userSocket"
+import { followUser, unfollowUser, getLikeNotification } from "./socket/userSocket"
 import { handleMessage, startChat } from './socket/chatSocket';
 
 const server = http.createServer(app)
@@ -26,13 +26,11 @@ io.on('connection', (socket) => {
     const { userId } = socket as any;
     socket.join(userId)
 
-    socket.on('test1', msg => console.log(msg))
-
     followUser(socket, io)
     unfollowUser(socket, io)
     startChat(socket, io)
     handleMessage(socket, io)
-    
+    getLikeNotification(socket, io)
 });
 
 (

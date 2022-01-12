@@ -5,6 +5,7 @@ export const errorsResponse1 = (req: Request, res: Response, next: NextFunction)
 }
 
 export const errorsResponse2 = (err: any, req: Request, res: Response, next: NextFunction) => {
+    console.log(err)
     let error = {
         message: "Something went wrong",
         statuscode: 500

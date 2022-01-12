@@ -10,16 +10,11 @@ const userSchema = new mongoose.Schema({
     followings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     birthday: { type: Date, required: true },
-    picture: { type: String, default: '/profile-pictures/default-profile-picture.png' },
+    picture: { type: String, default: '/uploads/profile-pictures/default-profile-picture.png' },
     country: String,
     description: { type: String, maxlength: 150 }
 }, {
     timestamps: true
-})
-
-userSchema.pre('save', async function(next) {
-    this.password = await bcrypt.hash(this.password, 10)
-    next()
 })
 
 const User = mongoose.model('User', userSchema)

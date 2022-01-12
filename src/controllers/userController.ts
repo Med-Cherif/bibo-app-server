@@ -1,6 +1,7 @@
 import User from "../models/User";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt"
+import { generateAccessToken } from "../utils/tokens";
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     const { search, all } = req.query
@@ -59,21 +60,28 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 }
 
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-    const fields = ['username', 'gender', 'name', 'country', 'birthday', 'email']
-    const { userId, ...data } = req.body
+    const fields = ['username', 'name', 'email']
+    const data = req.body
+    const { userId } = req.params
     let newData: any = {};
 
     for (let key in data) {
-        if (fields.includes(key)) {
+        if (!fields.includes(key)) return;
+        if (key === 'birthday') {
+            newData[key] = new Date(data[key].split('/').reverse().join('/'))
+        } else {
             newData[key] = data[key]
         }
     }
 
     try {
         const updatedUser = await User.findByIdAndUpdate(userId, newData, { new: true })
+        const accessToken = generateAccessToken(updatedUser)
+        const refreshToken = generateAccessToken(updatedUser)
         res.status(200).json({
             success: true,
-            user: updatedUser
+            user: updatedUser,
+            accessToken, refreshToken
         })
     } catch (error) {
         next({})
@@ -81,7 +89,8 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 }
 
 export const updateUserPassword = async (req: Request, res: Response, next: NextFunction) => {
-    const { currentPassword, newPassword, newConfirmingPassword, userId } = req.body
+    const { currentPassword, newPassword, newConfirmingPassword } = req.body
+    const { userId } = req.params
     if (!currentPassword || !newPassword || !newConfirmingPassword || !userId) {
         return next({ statuscode: 400 })
     }
@@ -96,7 +105,7 @@ export const updateUserPassword = async (req: Request, res: Response, next: Next
         const user = await User.findById(userId)
         const isMatch = await bcrypt.compare(currentPassword, user.password)
         if (!isMatch) return next({ statuscode: 400, message: "Your current password is wrong" })
-        user.password = newPassword
+        user.password = await bcrypt.hash(newPassword, 10)
         await user.save()
         res.sendStatus(204)
     } catch (error) {
