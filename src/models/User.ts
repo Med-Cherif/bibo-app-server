@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     followings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     birthday: { type: Date, required: true },
-    picture: { type: String, default: '/uploads/profile-pictures/default-profile-picture.png' },
+    picture: { type: String, default: 'uploads/profile-pictures/default-profile-picture.png' },
     country: String,
     description: { type: String, maxlength: 150 }
 }, {

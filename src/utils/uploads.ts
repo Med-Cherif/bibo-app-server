@@ -25,7 +25,7 @@ function handleMulter(dest: string) {
         if (mimetype === 'image/jpeg' || mimetype === 'image/png' || mimetype === "image/jpg" || mimetype.slice(0, 5) === "video") {
             cb(null, true)
         } else {
-            cb(new Error('Invalid image type'))
+            cb(new Error('Invalid media type'))
         }
     }
 
@@ -34,3 +34,4 @@ function handleMulter(dest: string) {
 }
     
 export const uploadPostImages = handleMulter('post-images')
+export const uploadProfilePictures = handleMulter('profile-pictures')

@@ -1,7 +1,10 @@
 import User from "../models/User";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt"
-import { generateAccessToken } from "../utils/tokens";
+import { generateAccessToken, generateRefreshToken } from "../utils/tokens";
+import { uploadProfilePictures } from "../utils/uploads";
+
+const upload = uploadProfilePictures.single('profile-picture')
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
     const { search, all } = req.query
@@ -111,4 +114,25 @@ export const updateUserPassword = async (req: Request, res: Response, next: Next
     } catch (error) {
         next({})
     }
+}
+
+export const uploadProfilePicture = (req: Request, res: Response, next: NextFunction) => {
+    upload(req, res, async function(err) {
+        if (err) {
+            return next({ message: "Something went wrong while uploading the picture" })
+        }
+        const { userId } = req.params;
+        const user = await User.findById(userId)
+        if (!user) return next({ statuscode: 404, message: "User not found" });
+        const { path } = req.file!
+        user.picture = path;
+        await user.save();
+        const accessToken = generateAccessToken(user)
+        const refreshToken = generateRefreshToken(user)
+
+        res.status(200).json({
+            success: true,
+            accessToken, refreshToken
+        })       
+    })
 }
