@@ -6,7 +6,10 @@ export const getNotifications = async (req: Request, res: Response, next: NextFu
     if (!userId) return next({ statuscode: 404 })
     
     try {
-        const notifications = await Notification.find({ user: userId }).sort('-createdAt').limit(20).populate('user2', '_id picture').populate('post', '_id creator media');
+        const notifications = await Notification.find({ user: userId }).sort('-createdAt')
+            .populate('user2', '_id picture')
+            .populate('post', '_id creator media')
+            .populate('comment', '_id user content');
         res.status(200).json({
             success: true,
             notifications

@@ -8,7 +8,8 @@ const postSchema = new mongoose.Schema({
         mimetype: String
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    comments: { type: Number, default: 0 }
 }, {
     timestamps: true
 })

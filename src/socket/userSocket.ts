@@ -24,7 +24,7 @@ export const followUser = (socket: Socket, io: Server<DefaultEventsMap, DefaultE
             await user.save()
             await followerUser.save()
 
-            io.to(followerId).emit('follow user', followerUser._id )
+            io.to(followerId).emit('follow user', user._id)
 
             // create notification
             const newNotification = new Notification({
@@ -35,7 +35,6 @@ export const followUser = (socket: Socket, io: Server<DefaultEventsMap, DefaultE
             })
 
             const notification = await (await newNotification.save()).populate('user2', '_id picture')
-            console.log(notification)
             io.to(userId).emit('get followed', notification)
         } catch (error) {
             console.log(error)
@@ -67,7 +66,7 @@ export const unfollowUser = (socket: Socket, io: Server<DefaultEventsMap, Defaul
 
             await Notification.deleteOne({ user: userId, user2: unfollowerId, action: 'followingUser' })
 
-            io.to(unfollowerId).emit('unfollow user', unfollowerUser._id)
+            io.to(unfollowerId).emit('unfollow user', user._id)
         } catch (error) {
             console.log(error)
         }

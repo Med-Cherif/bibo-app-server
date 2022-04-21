@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, match: /^[a-z0-9_\.]+$/},
@@ -12,7 +11,7 @@ const userSchema = new mongoose.Schema({
     birthday: { type: Date, required: true },
     picture: { type: String, default: 'uploads/profile-pictures/default-profile-picture.png' },
     country: String,
-    description: { type: String, maxlength: 150 }
+    description: { type: String, maxlength: 200, default: 'No Bio' }
 }, {
     timestamps: true
 })

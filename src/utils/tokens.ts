@@ -14,7 +14,8 @@ function jwtPayload(payload: any) {
         username: payload.username,
         name: payload.name,
         email: payload.email,
-        picture: payload?.picture
+        picture: payload.picture,
+        description: payload.description
     }
 }
 

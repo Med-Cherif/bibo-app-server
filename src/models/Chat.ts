@@ -1,19 +1,20 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const messageSchema = new mongoose.Schema({
-    chatId: { type: mongoose.Schema.Types.ObjectId, ref: 'Chat', required: true },
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    content: { type: String, required: true }
-}, {
-    timestamps: true
+const messageSchema = new Schema({
+    chatId: { type: Schema.Types.ObjectId, ref: 'Chat', required: true },
+    sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    content: { type: String, required: true },
+    seen: { type: Boolean },
+    createdAt: { type: Date, default: Date.now }
 })
 
-const chatSchema = new mongoose.Schema({
-    joinedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }],
-    lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' }
-}, {
-    timestamps: true
+const chatSchema = new Schema({
+    joinedUsers: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+    starter: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    receiver: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    accepted: { type: Boolean, default: false },
+    lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
 })
 
-export const Message = mongoose.model('Message', messageSchema)
-export const Chat = mongoose.model('Chat', chatSchema)
+export const Message = model('Message', messageSchema)
+export const Chat = model('Chat', chatSchema)

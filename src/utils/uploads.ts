@@ -22,7 +22,7 @@ function handleMulter(dest: string) {
 
     const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
         const { mimetype } = file
-        if (mimetype === 'image/jpeg' || mimetype === 'image/png' || mimetype === "image/jpg" || mimetype.slice(0, 5) === "video") {
+        if (mimetype === 'image/jpeg' || mimetype === 'image/png' || mimetype === "image/jpg" || mimetype.includes("video")) {
             cb(null, true)
         } else {
             cb(new Error('Invalid media type'))
@@ -33,5 +33,5 @@ function handleMulter(dest: string) {
 
 }
     
-export const uploadPostImages = handleMulter('post-images')
-export const uploadProfilePictures = handleMulter('profile-pictures')
+export const uploadPostImages = handleMulter('post-media');
+export const uploadProfilePictures = handleMulter('profile-pictures');

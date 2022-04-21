@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from "express"
 import User from "../models/User";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokens";
 import { userSchema } from "../utils/validate";
-import bcrypt from "bcrypt";
+import PasswordHandler from "../utils/passwords";
+
+const scrypt = new PasswordHandler();
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     const { username, name, email, password, confirmPassword, birthday, gender, country } = req.body
@@ -17,7 +19,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         if (existsUser) return next({ message: 'E-mail already in use', statuscode: 409 })
         existsUser = await User.findOne({ username })
         if (existsUser) return next({ message: 'Username already in use', statuscode: 409 })
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = scrypt.hashPassword(password)
         const newUser = new User({ ...data, password: hashedPassword, birthday: new Date(birthday.split('/').reverse().join('/')) })
         const user = await newUser.save()
 
@@ -45,7 +47,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         const user = await User.findOne().or([{ username: perferredSocial }, { email: perferredSocial }])
         if (!user) return next({ statuscode: 404, message: "Invalid credentials" })
 
-        const isPasswordMatch = await bcrypt.compare(password, user.password)
+        const isPasswordMatch = scrypt.comparePassword(password, user.password);
 
         if (!isPasswordMatch) return next({ statuscode: 404, message: "Invalid credentials" })
 

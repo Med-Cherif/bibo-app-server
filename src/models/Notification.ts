@@ -9,14 +9,24 @@ const notificationSchema = new mongoose.Schema({
     message: { type: String, required: true },
     action: {
         type: String,
-        enum: ['likingPost', 'followingUser']
+        enum: ['likingPost', 'followingUser', 'makingComment']
     },
     post: {
         required: function() {
-            return (this as any).action === 'likingPost'
+            if ((this as any).action === 'likingPost' || (this as any).action === 'makingComment') {
+                return true
+            }
+            return false;
         },
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
+    },
+    comment: {
+        required: function() {
+            return (this as any).action === 'makingComment'
+        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
     },
     seen: {
         type: Boolean,

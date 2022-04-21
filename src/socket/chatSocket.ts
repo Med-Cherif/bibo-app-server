@@ -24,7 +24,13 @@ export const startChat = (socket: Socket, io: Server<DefaultEventsMap, DefaultEv
             socket.join(chat._id.toString())
 
             const messages = await Message.find({ chatId: chat._id }).sort('createdAt')
-            io.to(starterId).emit('start exixts chat', { user, messages })
+
+            const accepted = {
+                isAccepted: chat.accepted,
+                receiver: chat.receiver
+            }
+
+            io.to(starterId).emit('start exixts chat', { user, messages, accepted })
             
         } catch (error) {
             console.log(error)
@@ -41,25 +47,63 @@ export const handleMessage = (socket: Socket, io: Server<DefaultEventsMap, Defau
         
         try {
             if (!chatId) {
-                const newChat = new Chat({ joinedUsers: [senderId, toId] })
-                const chat = await newChat.save()
+                const newChat = new Chat({ 
+                    joinedUsers: [senderId, toId], 
+                    starter: senderId, 
+                    receiver: toId
+                })
+                const chat = await (await newChat.save())
+                    .populate('starter', '_id username picture')
+                    // .populate('lastMessage', '_id content createdAt')
+
                 const newMessage = new Message({ sender: senderId, chatId: chat._id, content })
                 const message = await newMessage.save()
                 chat.lastMessage = message
-                await chat.save()
+                await (await chat.save()).populate('joinedUsers', '_id username picture');
+
                 socket.join(chat._id.toString())
-                return io.to(senderId).emit('create chat', { message })
+                io.to(toId).emit('receiver new chat', chat)
+                return io.to(senderId).emit('create chat', { chat, message });
             }
             const message = await Message.create({
                 sender: senderId, chatId, content
             })
-            await Chat.findByIdAndUpdate(chatId, { lastMessage: message })
             io.to(chatId).emit('receive message', message)
+            const chat = await Chat.findById(chatId);
+            chat.lastMessage = message;
+            await (await chat.save()).populate('joinedUsers', '_id username picture');
+            io.to(chat.starter.toString()).to(chat.receiver.toString()).emit('receive chat', chat);
 
         } catch (error) {
             console.log(error)
             return cb({ error: "Something went wrong" })
 
         }
+    })
+}
+
+export const onWriteMessage = (socket: Socket, io: Server<DefaultEventsMap, DefaultEventsMap, any>) => {
+    return socket.on('on write message', ({ userID, chatID }) => {
+        io.to(userID).emit('on write message', chatID);
+    })
+}
+
+export const onEndWriteMessage = (socket: Socket, io: Server<DefaultEventsMap, DefaultEventsMap, any>) => {
+    return socket.on('on end write message', ({ userID, chatID }) => {
+        io.to(userID).emit('on end write message', chatID);
+    })
+}
+
+export const seenMessage = (socket: Socket, io: Server<DefaultEventsMap, DefaultEventsMap, any>) => {
+    return socket.on('seen message', async ({chatID, messageID, userID}) => {
+        io.to(userID).emit('seen message', {chatID, messageID});
+        
+        try {
+            const updateData: any = { seen: true }
+            await Message.findByIdAndUpdate(messageID, updateData); 
+        } catch (error) {
+            console.log(error);
+        }
+
     })
 }

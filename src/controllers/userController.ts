@@ -1,8 +1,10 @@
 import User from "../models/User";
 import { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt"
 import { generateAccessToken, generateRefreshToken } from "../utils/tokens";
 import { uploadProfilePictures } from "../utils/uploads";
+import PasswordHandler from "../utils/passwords";
+
+const scrypt = new PasswordHandler()
 
 const upload = uploadProfilePictures.single('profile-picture')
 
@@ -53,9 +55,22 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
         if (!user) {
             return next({ statuscode: 404, message: "User not found" })
         }
+
+        const followings = user.followings.length;
+        const followers = user.followers.length;
+        const userResponse = {
+            _id: user._id,
+            name: user.name,
+            username: user.username,
+            email: user.email,
+            description: user.description,
+            picture: user.picture,
+            followings,
+            followers
+        }
         res.status(200).json({
             success: true,
-            user
+            user: userResponse
         })
     } catch (error) {
         next({})
@@ -63,18 +78,14 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 }
 
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-    const fields = ['username', 'name', 'email']
+    const fields = ['username', 'name', 'email', 'description']
     const data = req.body
     const { userId } = req.params
     let newData: any = {};
 
     for (let key in data) {
         if (!fields.includes(key)) return;
-        if (key === 'birthday') {
-            newData[key] = new Date(data[key].split('/').reverse().join('/'))
-        } else {
-            newData[key] = data[key]
-        }
+        newData[key] = data[key]
     }
 
     try {
@@ -106,9 +117,9 @@ export const updateUserPassword = async (req: Request, res: Response, next: Next
 
     try {
         const user = await User.findById(userId)
-        const isMatch = await bcrypt.compare(currentPassword, user.password)
+        const isMatch = scrypt.comparePassword(currentPassword, user.password)
         if (!isMatch) return next({ statuscode: 400, message: "Your current password is wrong" })
-        user.password = await bcrypt.hash(newPassword, 10)
+        user.password = scrypt.hashPassword(newPassword)
         await user.save()
         res.sendStatus(204)
     } catch (error) {
@@ -135,4 +146,51 @@ export const uploadProfilePicture = (req: Request, res: Response, next: NextFunc
             accessToken, refreshToken
         })       
     })
+}
+
+export const getUserContact = async (req: Request, res: Response, next: NextFunction) => {
+    const { userId, type } = req.params;
+
+    if (!userId || !type) {
+        return next({})
+    }
+    if (!(type === "followings" || type === "followers")) {
+        return next({ statuscode: 400 })
+    }
+    try {
+        /**
+         * i did reverse because if i want go get my followers i'll be looking in their followings list
+         */
+        let userType = type === "followers" ? "followings" : "followers"
+        const users = await User.find({
+            [userType]: { $in: [userId] }
+        }).select('_id picture username name followings followers')
+        res.status(200).json({
+            success: true,
+            type,
+            [type]: users
+        })
+
+    } catch (error) {
+        console.log(error)
+        next({})
+    }
+
+}
+
+export const getMyFollowings = async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.params
+    if (!userId) return next({ statuscode: 400 })
+    try {
+        const user = await User.findById(userId).select('-password');
+        if (!user) return next({ statuscode: 404, message: "User not found" })
+        const followings = user.followings;
+        res.status(200).json({
+            success: true,
+            followings
+        })
+    } catch (error) {
+        console.log(error)
+        next({})
+    }
 }
