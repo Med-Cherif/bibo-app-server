@@ -1,4 +1,3 @@
-import https from 'https';
 import http from "http";
 import app from "./app";
 import { connectDB } from './config/db';
@@ -7,16 +6,11 @@ import { followUser, unfollowUser, getLikeNotification } from "./socket/userSock
 import { handleMessage, startChat, onWriteMessage, onEndWriteMessage, seenMessage } from './socket/chatSocket';
 import { makeComment } from './socket/commentSocket';
 
-// const server = https.createServer({
-//     key: "",
-//     cert: ""
-// }, app)
-
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "*"
+        origin: process.env.CLIENT_URL
     }
 })
 
