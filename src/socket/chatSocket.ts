@@ -33,7 +33,6 @@ export const startChat = (socket: Socket, io: Server<DefaultEventsMap, DefaultEv
             io.to(starterId).emit('start exixts chat', { user, messages, accepted })
             
         } catch (error) {
-            console.log(error)
             cb({ error: 'Something went wrong' })
         }
     })
@@ -75,7 +74,6 @@ export const handleMessage = (socket: Socket, io: Server<DefaultEventsMap, Defau
             io.to(chat.starter.toString()).to(chat.receiver.toString()).emit('receive chat', chat);
 
         } catch (error) {
-            console.log(error)
             return cb({ error: "Something went wrong" })
 
         }
@@ -102,7 +100,7 @@ export const seenMessage = (socket: Socket, io: Server<DefaultEventsMap, Default
             const updateData: any = { seen: true }
             await Message.findByIdAndUpdate(messageID, updateData); 
         } catch (error) {
-            console.log(error);
+            
         }
 
     })

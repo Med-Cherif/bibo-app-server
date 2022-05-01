@@ -7,14 +7,14 @@ import Post from "../models/Post";
 export const makeComment = (socket: Socket, io: Server<DefaultEventsMap, DefaultEventsMap, any>) => {
     socket.on('make comment', async ({ postId, userId, content }) => {
         if (!userId || !postId || !content) {
-            return console.log('Some field is missing');
+            return
         }
 
-        if (content.length > 500) return console.log('Content must be less than 500 characters');
+        if (content.length > 500) return;
 
         try {
             const post = await Post.findById(postId);
-            if (!post) return console.log('Post not found');
+            if (!post) return;
             const newComment = new Comment({
                 user: userId, post: postId, content
             })
@@ -23,7 +23,7 @@ export const makeComment = (socket: Socket, io: Server<DefaultEventsMap, Default
             post.comments = post.comments + 1;
             await post.save();
         } catch (error) {
-            console.log(error);
+            
         }
     })
 }

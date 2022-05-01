@@ -91,7 +91,7 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
         if (typeof post.media?.path === "string" && post.media?.path.length > 0) {
             const path = resolve(post.media.path);
             unlink(path, (err) => {
-                if (err) return console.log(err);
+                if (err) return
             });
         }
         await post.delete()

@@ -7,7 +7,7 @@ export const followUser = (socket: Socket, io: Server<DefaultEventsMap, DefaultE
     return socket.on('follow user', async ({ followerId, userId }) => {
         const message = "Something went wrong";
         if (!followerId && !userId) {
-            return console.log({ message })
+            return
         }
 
         try {
@@ -15,7 +15,7 @@ export const followUser = (socket: Socket, io: Server<DefaultEventsMap, DefaultE
             const user = await User.findById(userId).where('followers').nin([followerId])
 
             if (!followerUser || !user) {
-                return console.log({ message })
+                return;
             }
 
             user.followers.push(followerId)
@@ -37,17 +37,14 @@ export const followUser = (socket: Socket, io: Server<DefaultEventsMap, DefaultE
             const notification = await (await newNotification.save()).populate('user2', '_id picture')
             io.to(userId).emit('get followed', notification)
         } catch (error) {
-            console.log(error)
-            console.log({ message })
         }
     })
 }
 
 export const unfollowUser = (socket: Socket, io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) => {
     return socket.on('unfollow user', async ({ unfollowerId, userId }) => {
-        const message = "Something went wrong"
         if (!unfollowerId || !userId) {
-            return console.log(message)
+            return
         }
 
         try {
@@ -55,7 +52,7 @@ export const unfollowUser = (socket: Socket, io: Server<DefaultEventsMap, Defaul
             const user = await User.findById(userId).where('followers').in([unfollowerId])
 
             if (!unfollowerUser || !user) {
-                return console.log(message)
+                return;
             }
 
             unfollowerUser.followings.pull(userId)
@@ -68,7 +65,7 @@ export const unfollowUser = (socket: Socket, io: Server<DefaultEventsMap, Defaul
 
             io.to(unfollowerId).emit('unfollow user', user._id)
         } catch (error) {
-            console.log(error)
+            
         }
     })
 }
@@ -95,7 +92,7 @@ export const getLikeNotification = (socket: Socket, io: Server<DefaultEventsMap,
             }
             io.to(post.creator).emit('like post notification', data)
         } catch (error) {
-            console.log(error)
+            
         }
         
     })

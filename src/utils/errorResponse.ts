@@ -1,7 +1,6 @@
 import { Response, Request, NextFunction } from "express"
 
 export const errorsResponse1 = (req: Request, res: Response, next: NextFunction) => {
-    console.log("The API URI is not valid");
     res.status(500).json({ message: "The API URI is not valid" })
 }
 

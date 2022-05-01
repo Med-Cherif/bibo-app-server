@@ -172,7 +172,6 @@ export const getUserContact = async (req: Request, res: Response, next: NextFunc
         })
 
     } catch (error) {
-        console.log(error)
         next({})
     }
 
@@ -190,7 +189,6 @@ export const getMyFollowings = async (req: Request, res: Response, next: NextFun
             followings
         })
     } catch (error) {
-        console.log(error)
         next({})
     }
 }

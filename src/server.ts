@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
         try {
             await connectDB()
             server.listen(Number(PORT), function() {
-                console.log('Server is listening')
+                console.log('server is listening')
             })
         } catch (error) {
             console.log(error)
