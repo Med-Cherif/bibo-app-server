@@ -12,7 +12,6 @@ const chatSchema = new Schema({
     joinedUsers: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     starter: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     receiver: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    accepted: { type: Boolean, default: false },
     lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
 })
 
