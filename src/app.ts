@@ -13,9 +13,7 @@ dotenv.config()
 const app = express()
 
 // middlewares
-app.use(cors({
-    origin: process.env.CLIENT_URL
-}))
+app.use(cors())
 
 app.use('/uploads', express.static('uploads'))
 app.use(express.json())
