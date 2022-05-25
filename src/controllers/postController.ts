@@ -47,7 +47,7 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
                     post
                 })
             } catch (error) {
-                console.log(error);
+                
                 next({})
             }
             
@@ -71,7 +71,7 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
                 post
             })
         } catch (error) {
-            console.log(error);
+            
             next({})
         }
 
@@ -131,11 +131,13 @@ export const getUserPosts = async (req: Request, res: Response, next: NextFuncti
         const posts = await Post.find({ creator: userId })
             .sort({ createdAt: -1 })
             .populate('creator', '_id username picture name')
+        
         res.status(200).json({
             success: true, 
             posts
         })
     } catch (error) {
+        
         next({})
     }
 }

@@ -38,6 +38,12 @@ io.on('connection', (socket) => {
     seenMessage(socket, io)
     makeComment(socket, io)
 
+    socket.on('logout', () => {
+        socket.rooms.forEach(room => {
+            socket.leave(room);
+        })
+    })
+
 
     socket.on('offer', ({to, ...payload}) => {
         io.to(to).emit('offer', payload)
@@ -61,11 +67,8 @@ io.on('connection', (socket) => {
     async function() {
         try {
             await connectDB()
-            server.listen(Number(PORT), function() {
-                console.log('server is listening')
-            })
+            server.listen(Number(PORT))
         } catch (error) {
-            console.log(error)
             process.exit(1)
         }
     }
