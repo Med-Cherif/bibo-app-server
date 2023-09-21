@@ -9,26 +9,24 @@ import chat from "./routes/chatRoutes";
 import comment from "./routes/commentRoute";
 import notifications from "./routes/notificationRoutes";
 
-dotenv.config()
-const app = express()
+dotenv.config();
+const app = express();
 
 // middlewares
-app.use(cors({
-    origin: process.env.CLIENT_URL
-}))
+app.use(cors());
 
-app.use('/uploads', express.static('uploads'))
-app.use(express.json())
+app.use("/uploads", express.static("uploads"));
+app.use(express.json());
 
 // APIs
-app.use('/api/auth', auth)
-app.use('/api/posts', post)
-app.use('/api', comment)
-app.use('/api/users', user)
-app.use('/api/chats', chat)
-app.use('/api/notifications', notifications)
+app.use("/api/auth", auth);
+app.use("/api/posts", post);
+app.use("/api", comment);
+app.use("/api/users", user);
+app.use("/api/chats", chat);
+app.use("/api/notifications", notifications);
 
-app.use(errorsResponse2)
-app.use(errorsResponse1)
+app.use(errorsResponse2);
+app.use(errorsResponse1);
 
 export default app;
